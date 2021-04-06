@@ -23,12 +23,13 @@ def record_audio():
     # Open the microphone and start recording
     with sr.Microphone() as source:
         print('Fale Algo:')
+        r.adjust_for_ambient_noise(source)
         audio = r.listen(source)
 
     # Use Google speech recognition
     data = ''
     try:
-        data = r.recognize_google(audio)
+        data = r.recognize_google(audio, language='pt-br')
         print('Você falou: ' + data)
     except sr.UnknownValueError:  # The reconignition dont understand the message
         print('Google não reconheceu a sua fala')
@@ -41,20 +42,21 @@ def record_audio():
 def assistant_response(text):
     # print(text)
     # Convert the text to speech
-    myobj = gTTS(text=text, lang='en', slow=False)
+    if text is not '':
+        myobj = gTTS(text=text, lang='pt-br', slow=False)
 
-    print('Alexa2: ' + text)
+        print('Alexa2: ' + text)
 
-    # Save the converted audio to a file
-    myobj.save('assistant_response.mp3')
+        # Save the converted audio to a file
+        myobj.save('assistant_response.mp3')
 
-    # Play the converted file
-    os.system('start assistant_response.mp3')
+        # Play the converted file
+        os.system('start assistant_response.mp3')
 
 
 # Function for wake word(s) or phrase
 def wake_word(text):
-    wake_words = ['hey computer', 'gutty', 'hello', 'mango', 'hey alexa']
+    wake_words = ['oi', 'hi', 'gutty', 'Olá', 'tudo bem', 'hey alexa']
     text = text.lower()
 
     # Validate the text = voice command
@@ -92,10 +94,10 @@ def get_date():
 # A function to return a random greeting response
 def greeting(text):
     # Greeting Inputs
-    greeting_inputs = ['hi', 'hey', 'hola', 'greetings', 'wassup', 'hello']
+    greeting_inputs = ['oi', 'Olá', 'tudo bem']
 
     # Greeting responses
-    greeting_responses = ['Hello human, i am alexa 2,', 'Hello, Im robot, ', 'Hello, ', 'Hi, ', 'Ricardo is beautiful, ']
+    greeting_responses = ['Olá humano, eu sou a alexa 2,', 'Olá, Eu sou um robô, ', 'Olá, ', 'Oi, ', 'Ricardo é lindo, ']
 
     for word in text.split():
         if word.lower() in greeting_inputs:
@@ -110,7 +112,7 @@ def get_person(text):
     word_list = text.split()
 
     for i in range(0, len(word_list)):
-        if i + 3 <= len(word_list) - 1 and word_list[i].lower() == 'who' and word_list[i+1].lower() == 'is':
+        if i + 3 <= len(word_list) - 1 and word_list[i].lower() == 'quem' and word_list[i+1].lower() == 'é':
             return word_list[i+2] + ' ' + word_list[i+3]
 
 
@@ -118,20 +120,19 @@ while True:
     # Record the audio
     text = record_audio()
     response = ''
-
     # Check for the wake word
     if wake_word(text) is True:
         # print('Me chamou mestre?')
-
+        print(text)
         # Check for greetings by the user
         response = response + greeting(text)
 
         # Check if user said date
-        if 'date' in text:
+        if 'dia' in text:
             get_date = get_date()
             response = f'{response} {get_date}'
 
-        if 'time' in text:
+        if 'tempo' in text:
             now = datetime.datetime.now()
             meridiem = ''
             if now.hour >= 12:
@@ -146,30 +147,19 @@ while True:
             else:
                 minute = str(now.minute)
 
-            response = f'{response} It is {str(hour)} : {minute} {meridiem}.'
+            response = f'{response} É {str(hour)} : {minute} {meridiem}.'
 
         # Check if user said who is
-        if 'who is' in text:
+        if 'quem é' in text:
             person = get_person(text)
             print(person)
             wiki = wikipedia.summary(person, sentences=2)
             response = f'{response} {wiki}'
 
         # Have the assistant respond back using audio and the text from response
+        print(response)
         assistant_response(response)
 
 
 # text = 'Gutty is top'
 # assistant_response(text)
-
-
-
-
-
-
-
-
-
-
-
-
