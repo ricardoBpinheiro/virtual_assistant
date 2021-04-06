@@ -11,6 +11,7 @@ import warnings
 import calendar
 import random
 import wikipedia
+import platform
 
 # Ignore any warning messages
 warnings.filterwarnings('ignore')
@@ -51,7 +52,10 @@ def assistant_response(text):
         myobj.save('assistant_response.mp3')
 
         # Play the converted file
-        os.system('start assistant_response.mp3')
+        if platform.system() is 'Windows':
+            os.system('start assistant_response.mp3')
+        else:
+            os.system('nvlc assistant_response.mp3')
 
 
 # Function for wake word(s) or phrase
